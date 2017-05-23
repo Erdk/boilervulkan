@@ -1,2 +1,3 @@
 # boilervulkan
-Vulkan boilerplate code
+
+Vulkan boilerplate code, written according to https://vulkan-tutorial.com/Introduction

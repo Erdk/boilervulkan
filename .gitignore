@@ -1,3 +1,6 @@
+VulkanTest
+*.spv
+
 # Prerequisites
 *.d
 
