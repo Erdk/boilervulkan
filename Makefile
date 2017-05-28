@@ -1,20 +1,23 @@
 CXX=g++
-CXXFLAGS= -g3 -ggdb -std=c++14 -I$(VULKAN_SDK_PATH)/include
-LDFLAGS= -L$(VULKAN_SDK_PATH)/lib `pkg-config --static --libs glfw3` -lvulkan
+CXXFLAGS= -g3 -ggdb -std=c++14 -I$(VULKAN_SDK)/include
+LDFLAGS= -L$(VULKAN_SDK)/lib `pkg-config --static --libs glfw3` -lvulkan
+GLSLV=$(VULKAN_SDK)/bin/glslangValidator
 
-VulkanTest: main.cpp shaders/vert.spv shaders/frag.spv
+boilerv: main.cpp shaders/vert.spv shaders/frag.spv
 	$(CXX) $(CXXFLAGS) -o $@ main.cpp $(LDFLAGS)
 
 shaders/vert.spv: shaders/shader.vert
-	$(VULKAN_SDK_PATH)/bin/glslangValidator -V -o shaders/vert.spv shaders/shader.vert
+	$(GLSLV) -V -o shaders/vert.spv shaders/shader.vert
 
 shaders/frag.spv: shaders/shader.frag
-	$(VULKAN_SDK_PATH)/bin/glslangValidator -V -o shaders/frag.spv shaders/shader.frag
+	$(GLSLV) -V -o shaders/frag.spv shaders/shader.frag
 
-.PHONY: test clean
+.PHONY: test clean all
 
-test: VulkanTest
-	LD_LIBRARY_PATH=$(VULKAN_SDK_PATH)/lib VK_LAYER_PATH=$(VULKAN_SDK_PATH)/etc/explicit_layer.d ./VulkanTest
+all: boilerv
+
+test: boilerv
+	LD_LIBRARY_PATH=$(VULKAN_SDK_PATH)/lib VK_LAYER_PATH=$(VULKAN_SDK_PATH)/etc/explicit_layer.d ./boilerv
 
 clean:
-	rm -f VulkanTest shaders/*.spv
+	rm -f boilerv shaders/*.spv
