@@ -1066,6 +1066,7 @@ class HelloTriangleApplication {
       cleanupSwapChain();
 
       vkDestroyBuffer(device, vertexBuffer, nullptr);
+      vkFreeMemory(device, vertexBufferMemory, nullptr);
 
       vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
       vkDestroyFence(device, imageAvailableFence, nullptr);
