@@ -1,6 +1,6 @@
 # boilerv
 
-Repositiory with implementation of Vulkan's boilerplate functions. Playground on which I'm leaning how different Vulkan components work with each other.
+Repositiory with implementation of Vulkan's boilerplate functions. Playground on which I'm learning how different Vulkan components work with each other.
 
 This code was build and tested only on Linux, but it should be easly portable.
 
