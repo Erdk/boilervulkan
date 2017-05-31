@@ -1032,6 +1032,11 @@ class HelloTriangleApplication {
       } else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
       }
+
+      // to prevent memory leak from validation layers
+      if (enableValidationLayers) {
+        vkQueueWaitIdle(presentQueue);
+      }
     }
 
     // handling invalid swap chains
