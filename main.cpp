@@ -141,10 +141,13 @@ struct Vertex {
 };
 
 const std::vector<Vertex> vertices = {
-  {{ 0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-  {{ 0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-  {{-0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}}
+  {{ -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+  {{  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+  {{  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}},
+  {{ -0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}}
 };
+
+const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 
 // Main app class
 
@@ -179,9 +182,13 @@ class HelloTriangleApplication {
     std::vector<VkFramebuffer> swapChainFramebuffers;
 
     VkCommandPool commandPool;
+    std::vector<VkCommandBuffer> commandBuffers;
+
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
-    std::vector<VkCommandBuffer> commandBuffers;
+    VkBuffer indexBuffer;
+    VkDeviceMemory indexBufferMemory;
+
 
     VkFence imageAvailableFence;
     VkSemaphore renderFinishedSemaphore;
@@ -210,6 +217,7 @@ class HelloTriangleApplication {
       createFramebuffers();
       createCommandPool();
       createVertexBuffer();
+      createIndexBuffer();
       createCommandBuffers();
       createSynchronizationPrimitives();
     }
@@ -876,6 +884,27 @@ class HelloTriangleApplication {
       vkFreeMemory(device, stagingBufferMemory, nullptr);
     }
 
+    void createIndexBuffer() {
+      VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+      VkBuffer stagingBuffer;
+      VkDeviceMemory stagingBufferMemory;
+
+      createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+      void *data;
+      vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+      memcpy(data, indices.data(), (size_t) bufferSize);
+      vkUnmapMemory(device, stagingBufferMemory);
+
+      createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+
+      copyBuffer(stagingBuffer, indexBuffer, bufferSize);
+
+      vkDestroyBuffer(device, stagingBuffer, nullptr);
+      vkFreeMemory(device, stagingBufferMemory, nullptr);
+    }
+
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
       VkBufferCreateInfo bufferInfo = {};
       bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -919,8 +948,8 @@ class HelloTriangleApplication {
       vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
       VkBufferCopy copyRegion = {};
-      copyRegion.srcOffset = 0;
-      copyRegion.dstOffset = 0;
+      //copyRegion.srcOffset = 0;
+      //copyRegion.dstOffset = 0;
       copyRegion.size = size;
       vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
@@ -991,8 +1020,9 @@ class HelloTriangleApplication {
         VkBuffer vertexBuffers[] = {vertexBuffer};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-        vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -1120,6 +1150,9 @@ class HelloTriangleApplication {
     //
     void cleanup() {
       cleanupSwapChain();
+
+      vkDestroyBuffer(device, indexBuffer, nullptr);
+      vkFreeMemory(device, indexBufferMemory, nullptr);
 
       vkDestroyBuffer(device, vertexBuffer, nullptr);
       vkFreeMemory(device, vertexBufferMemory, nullptr);
