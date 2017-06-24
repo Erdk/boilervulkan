@@ -1,6 +1,6 @@
 *.spv
 boilerv
-
+.vscode
 # Prerequisites
 *.d
 
