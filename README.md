@@ -19,3 +19,7 @@ $ make test
 ## Credits
 
 Written according to https://vulkan-tutorial.com/Introduction and https://github.com/Overv/VulkanTutorial (<- most likely you're looking for this repo instead of mine ;))
+
+stb_image.h - MIT License, https://github.com/nothings/stb
+
+textures/texture.jpg - CC0 Public Domain, https://pixabay.com/en/statue-sculpture-figure-1275469/
