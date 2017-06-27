@@ -22,4 +22,13 @@ Written according to https://vulkan-tutorial.com/Introduction and https://github
 
 stb_image.h - MIT License, https://github.com/nothings/stb
 
+tiny_obj_loader - MIT License, https://github.com/syoyo/tinyobjloader
+
 textures/texture.jpg - CC0 Public Domain, https://pixabay.com/en/statue-sculpture-figure-1275469/
+
+Unfortunately I don't have rights to:
+
+- textures/chalet.jpg
+- models/chalet.obj
+
+So if you want to test this program first you have to download them from https://vulkan-tutorial.com/Loading_models
