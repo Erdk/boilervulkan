@@ -242,7 +242,7 @@ class HelloTriangleApplication {
 
     std::vector<VkCommandBuffer> commandBuffers;
 
-    VkFence imageAvailableFence;
+    VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
 
     void initWindow() {
@@ -281,7 +281,7 @@ class HelloTriangleApplication {
       createDescriptorPool();
       createDescriptorSet();
       createCommandBuffers();
-      createSynchronizationPrimitives();
+      createSemaphores();
     }
 
     // Create Instance
@@ -946,10 +946,7 @@ class HelloTriangleApplication {
       VkShaderModuleCreateInfo createInfo = {};
       createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
       createInfo.codeSize = code.size();
-
-      std::vector<uint32_t> codeAligned(code.size() / sizeof(uint32_t) + 1);
-      memcpy(codeAligned.data(), code.data(), code.size());
-      createInfo.pCode = codeAligned.data();
+      createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
       VkShaderModule shaderModule;
       if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
@@ -1489,18 +1486,12 @@ class HelloTriangleApplication {
       }
     }
 
-    void createSynchronizationPrimitives() {
-      VkFenceCreateInfo fenceInfo = {};
-      fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-
-      if (vkCreateFence(device, &fenceInfo, nullptr, &imageAvailableFence) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create fence!");
-      }
-
+    void createSemaphores() {
       VkSemaphoreCreateInfo semaphoreInfo = {};
       semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-      if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS) {
+      if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS || 
+        vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS) {
         throw std::runtime_error("failed to create semaphore!");
       }
     }
@@ -1519,7 +1510,7 @@ class HelloTriangleApplication {
 
     void drawFrame() {
       uint32_t imageIndex;
-      VkResult result = vkAcquireNextImageKHR(device, swapChain, std::numeric_limits<uint64_t>::max(), VK_NULL_HANDLE, imageAvailableFence, &imageIndex);
+      VkResult result = vkAcquireNextImageKHR(device, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
       if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         std::cerr << "... recreating swapchain...\n";
@@ -1529,14 +1520,15 @@ class HelloTriangleApplication {
         throw std::runtime_error("failed to acquire swap chain image!");
       }
 
-      vkWaitForFences(device, 1, &imageAvailableFence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-      vkResetFences(device, 1, &imageAvailableFence);
-
       VkSubmitInfo submitInfo = {};
       submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-      submitInfo.waitSemaphoreCount = 0;
-      submitInfo.pWaitSemaphores = nullptr;
-      submitInfo.pWaitDstStageMask = nullptr;
+
+      VkSemaphore waitSemaphores[] = {imageAvailableSemaphore};
+      VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+      submitInfo.waitSemaphoreCount = 1;
+      submitInfo.pWaitSemaphores = waitSemaphores;
+      submitInfo.pWaitDstStageMask = waitStages;
+      
       submitInfo.commandBufferCount = 1;
       submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
 
@@ -1662,7 +1654,7 @@ class HelloTriangleApplication {
       vkFreeMemory(device, vertexBufferMemory, nullptr);
 
       vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
-      vkDestroyFence(device, imageAvailableFence, nullptr);
+      vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
 
       vkDestroyCommandPool(device, commandPool, nullptr);
 
