@@ -1,5 +1,7 @@
 *.spv
 boilerv
+textures/chalet.jpg
+models/chalet.obj
 .vscode
 # Prerequisites
 *.d
