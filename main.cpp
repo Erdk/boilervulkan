@@ -719,7 +719,7 @@ class HelloTriangleApplication {
       for (const auto& shape : shapes) {
         for (const auto& index : shape.mesh.indices) {
           Vertex vertex = {};
-          
+
           vertex.pos = {
             attrib.vertices[3 * index.vertex_index + 0],
             attrib.vertices[3 * index.vertex_index + 1],
@@ -876,7 +876,7 @@ class HelloTriangleApplication {
       VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
       colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
       colorBlendAttachment.blendEnable = VK_FALSE;
-      
+
       colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // optional
       colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // optional
       colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // optional
@@ -1112,7 +1112,7 @@ class HelloTriangleApplication {
       barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
       barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
       barrier.image = image;
-      
+
       if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
         barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
@@ -1126,7 +1126,7 @@ class HelloTriangleApplication {
       barrier.subresourceRange.levelCount = 1;
       barrier.subresourceRange.baseArrayLayer = 0;
       barrier.subresourceRange.layerCount = 1;
-      
+
       /*if (oldLayout == VK_IMAGE_LAYOUT_PREINITIALIZED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) {
         barrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
@@ -1159,7 +1159,7 @@ class HelloTriangleApplication {
 
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
       VkCommandBuffer commandBuffer = beginSingleTimeCommands();
-      
+
       VkBufferImageCopy region = {};
       region.bufferOffset = 0;
       region.bufferRowLength = 0;
@@ -1381,7 +1381,7 @@ class HelloTriangleApplication {
       poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
       poolInfo.pPoolSizes = poolSizes.data();
       poolInfo.maxSets = 1;
-      
+
       if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor pool!");
       }
@@ -1528,7 +1528,7 @@ class HelloTriangleApplication {
       submitInfo.waitSemaphoreCount = 1;
       submitInfo.pWaitSemaphores = waitSemaphores;
       submitInfo.pWaitDstStageMask = waitStages;
-      
+
       submitInfo.commandBufferCount = 1;
       submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
 
@@ -1572,12 +1572,12 @@ class HelloTriangleApplication {
 
       UniformBufferObject ubo = {};
       ubo.model = glm::rotate(
-        glm::mat4(), 
-        time * glm::radians(90.0f), 
+        glm::mat4(),
+        time * glm::radians(90.0f),
         glm::vec3(0.0f, 0.0f, 1.0f));
       ubo.view = glm::lookAt(
-        glm::vec3(2.0f, 2.0f, 2.0f), 
-        glm::vec3(0.0f, 0.0f, 0.0f), 
+        glm::vec3(2.0f, 2.0f, 2.0f),
+        glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, 0.0f, 1.0f));
       ubo.proj = glm::perspective(
         glm::radians(45.0f),
