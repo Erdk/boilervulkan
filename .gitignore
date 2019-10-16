@@ -1,6 +1,7 @@
 *.spv
 build/
 boilerv
+boilervrel
 textures/chalet.jpg
 models/chalet.obj
 .vscode
